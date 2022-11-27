@@ -22,9 +22,29 @@ builder.Services.AddAuthentication()
     .AddIdentityServerJwt()
     .AddGoogle(googleOptions =>
     {
-        googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-        googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+        googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+    })
+    .AddFacebook(fbOptions =>
+    {
+        fbOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
+        fbOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
+    })
+    .AddTwitter(twOptions =>
+    {
+        twOptions.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"]!;
+        twOptions.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"]!;
+    })
+    .AddGitHub(ghOptions =>
+    {
+        ghOptions.ClientId = builder.Configuration["Authentication:Github:ClientId"]!;
+        ghOptions.ClientSecret = builder.Configuration["Authentication:Github:ClientSecret"]!;
     });
+    //.AddMicrosoftAccount(micOptions =>
+    //{
+    //    micOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
+    //    micOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
+    //});
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
