@@ -1,6 +1,6 @@
 # LCPTestAuthSocial
 
-LCPTestAuthSocial is simple project for testing of **external social login** authentications (for example: google).
+LCPTestAuthSocial is simple project for testing of **external social login** authentications (for example: google) in this webapp.
 
 ## **Source(s), Reference(s) and Tool(s)**:
 
