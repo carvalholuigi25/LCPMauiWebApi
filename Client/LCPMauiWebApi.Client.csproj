@@ -7,6 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Shared\MainLayout.razor.css" />
+    <None Remove="Shared\NavMenu.razor.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Shared\MainLayout.razor.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Shared\NavMenu.razor.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="7.0.0" />
@@ -18,19 +32,31 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="C:\Users\Luis\.nuget\packages\bootstrap\5.2.2\contentFiles\any\any\wwwroot\css\bootstrap-grid.css">
+    <Content Update="Pages\Authentication.razor">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="C:\Users\Luis\.nuget\packages\bootstrap\5.2.2\contentFiles\any\any\wwwroot\css\bootstrap-reboot.css">
+    <Content Update="Pages\Counter.razor">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="C:\Users\Luis\.nuget\packages\bootstrap\5.2.2\contentFiles\any\any\wwwroot\css\bootstrap-utilities.css">
+    <Content Update="Pages\FetchData.razor">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="C:\Users\Luis\.nuget\packages\bootstrap\5.2.2\contentFiles\any\any\wwwroot\css\bootstrap.css">
+    <Content Update="Pages\Index.razor">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="C:\Users\Luis\.nuget\packages\bootstrap\5.2.2\contentFiles\any\any\wwwroot\js\bootstrap.js">
+    <Content Update="Shared\LoginDisplay.razor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Shared\MainLayout.razor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Shared\NavMenu.razor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Shared\RedirectToLogin.razor">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Shared\SurveyPrompt.razor">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\css\app.css">

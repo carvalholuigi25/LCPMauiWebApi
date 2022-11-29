@@ -208,6 +208,7 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseCors(x => x
 .AllowAnyOrigin()
 .AllowAnyMethod()
@@ -232,7 +233,6 @@ app.UseBlazorFrameworkFiles();
 //app.UseCookiePolicy();
 
 app.UseIdentityServer();
-app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -243,7 +243,7 @@ app.UseSwaggerUI(c =>
 });
 
 app.MapRazorPages();
-app.MapFallbackToFile("index.html");
+app.MapFallbackToFile("mindex.html");
 //app.MapFallbackToPage("/_Host");
 app.MapControllers();
 
