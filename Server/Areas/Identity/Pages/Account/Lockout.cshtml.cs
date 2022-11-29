@@ -2,10 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using LCPMauiWebApi.Server.Areas.Identity.Pages.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace LCPTestAuthSocial.Server.Areas.Identity.Pages.Account
+namespace LCPMauiWebApi.Server.Areas.Identity.Pages.Account
 {
     /// <summary>
     ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LCPTestAuthSocial.Server.Controllers
+namespace LCPMauiWebApi.Server.Controllers
 {
     public class OidcConfigurationController : Controller
     {

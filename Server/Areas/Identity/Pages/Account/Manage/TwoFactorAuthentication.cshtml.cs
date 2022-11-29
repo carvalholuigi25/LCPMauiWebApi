@@ -4,13 +4,13 @@
 
 using System;
 using System.Threading.Tasks;
-using LCPTestAuthSocial.Server.Models;
+using LCPMauiWebApi.Server.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 
-namespace LCPTestAuthSocial.Server.Areas.Identity.Pages.Account.Manage
+namespace LCPMauiWebApi.Server.Areas.Identity.Pages.Account.Manage
 {
     public class TwoFactorAuthenticationModel : PageModel
     {

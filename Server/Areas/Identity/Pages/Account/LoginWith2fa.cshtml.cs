@@ -9,11 +9,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using LCPTestAuthSocial.Server.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using LCPMauiWebApi.Server.Models;
 
-namespace LCPTestAuthSocial.Server.Areas.Identity.Pages.Account
+namespace LCPMauiWebApi.Server.Areas.Identity.Pages.Account
 {
     public class LoginWith2faModel : PageModel
     {

@@ -1,8 +1,8 @@
-using LCPTestAuthSocial.Shared;
+using LCPMauiWebApi.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LCPTestAuthSocial.Server.Controllers
+namespace LCPMauiWebApi.Server.Controllers
 {
     [Authorize]
     [ApiController]

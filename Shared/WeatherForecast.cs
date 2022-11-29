@@ -1,4 +1,4 @@
-namespace LCPTestAuthSocial.Shared
+namespace LCPMauiWebApi.Shared
 {
     public class WeatherForecast
     {
