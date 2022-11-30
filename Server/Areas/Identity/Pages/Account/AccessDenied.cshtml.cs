@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using LCPMauiWebApi.Server.Areas.Identity.Pages.Account;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace LCPMauiWebApi.Server.Areas.Identity.Pages.Account

@@ -52,6 +52,8 @@ else
     builder.Services.AddDbContext<DBContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("lcpdb_sqllite")));
 }
 
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
 //builder.Services.AddScoped<DbContext, DBContext>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPostsService, PostsService>();
@@ -62,6 +64,45 @@ builder.Services.AddScoped<IAttachmentsService, AttachmentsService>();
 builder.Services.AddScoped<IFeedbacksService, FeedbacksService>();
 
 builder.Services.AddCors();
+
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddIdentityServer()
+    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+
+builder.Services.AddAuthentication()
+    .AddIdentityServerJwt()
+    .AddGoogle(googleOptions =>
+    {
+        googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+        googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+    })
+    .AddFacebook(fbOptions =>
+    {
+        fbOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
+        fbOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
+    })
+    .AddTwitter(twOptions =>
+    {
+        twOptions.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"]!;
+        twOptions.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"]!;
+    })
+    .AddGitHub(ghOptions =>
+    {
+        ghOptions.ClientId = builder.Configuration["Authentication:Github:ClientId"]!;
+        ghOptions.ClientSecret = builder.Configuration["Authentication:Github:ClientSecret"]!;
+    });
+//.AddMicrosoftAccount(micOptions =>
+//{
+//    micOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
+//    micOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
+//});
+
+//builder.Services.AddHttpContextAccessor();
+//builder.Services.AddScoped<HttpContextAccessor>();
+//builder.Services.AddHttpClient();
+//builder.Services.AddScoped<HttpClient>();
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -123,64 +164,27 @@ builder.Services.AddBlazoredLocalStorage(config =>
     config.JsonSerializerOptions.WriteIndented = false;
 });
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
-
-builder.Services.AddIdentityServer()
-    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
-
 var key = Encoding.UTF8.GetBytes(builder.Configuration.GetSection("token").Value!);
 
 //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 builder.Services.AddAuthentication(x =>
 {
-	x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-	x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(x =>
 {
-	x.RequireHttpsMetadata = false;
-	x.SaveToken = true;
-	x.TokenValidationParameters = new TokenValidationParameters
-	{
-		ValidateIssuerSigningKey = true,
-		IssuerSigningKey = new SymmetricSecurityKey(key),
-		ValidateIssuer = false,
-		ValidateAudience = false,
-		ClockSkew = TimeSpan.Zero
-	};
-})
-.AddIdentityServerJwt()
-.AddGoogle(googleOptions =>
-{
-	googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
-	googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
-})
-.AddFacebook(fbOptions =>
-{
-	fbOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
-	fbOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
-})
-.AddTwitter(twOptions =>
-{
-	twOptions.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"]!;
-	twOptions.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"]!;
-})
-.AddGitHub(ghOptions =>
-{
-	ghOptions.ClientId = builder.Configuration["Authentication:Github:ClientId"]!;
-	ghOptions.ClientSecret = builder.Configuration["Authentication:Github:ClientSecret"]!;
+    x.RequireHttpsMetadata = false;
+    x.SaveToken = true;
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ClockSkew = TimeSpan.Zero
+    };
 });
-//.AddMicrosoftAccount(micOptions =>
-//{
-//    micOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
-//    micOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
-//});
-
-//builder.Services.AddHttpContextAccessor();
-//builder.Services.AddScoped<HttpContextAccessor>();
-//builder.Services.AddHttpClient();
-//builder.Services.AddScoped<HttpClient>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -208,11 +212,12 @@ else
 }
 
 app.UseHttpsRedirection();
-app.UseRouting();
 app.UseCors(x => x
 .AllowAnyOrigin()
 .AllowAnyMethod()
 .AllowAnyHeader());
+
+app.UseBlazorFrameworkFiles();
 
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
@@ -228,23 +233,21 @@ app.UseDirectoryBrowser(new DirectoryBrowserOptions
     RequestPath = "/shared/assets"
 });
 
-app.UseBlazorFrameworkFiles();
-
-//app.UseCookiePolicy();
-
-app.UseIdentityServer();
-app.UseAuthentication();
-app.UseAuthorization();
-
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "LCP Maui Web Api V1");
 });
 
+//app.UseCookiePolicy();
+app.UseRouting();
+app.UseIdentityServer();
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapRazorPages();
-app.MapFallbackToFile("mindex.html");
 //app.MapFallbackToPage("/_Host");
 app.MapControllers();
+app.MapFallbackToFile("mindex.html");
 
 app.Run();
