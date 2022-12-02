@@ -23,7 +23,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 var ismodedb = 0;
-var localjwt = false;
+var localjwt = false; // false = enables the IdentityServerJwt, true = disables the IdentityServerJwt
 var key = localjwt ? Encoding.UTF8.GetBytes(builder.Configuration.GetSection("token").Value!) : null;
 
 var logger = new LoggerConfiguration()
@@ -33,16 +33,6 @@ var logger = new LoggerConfiguration()
   .CreateLogger();
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
-
-builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<MyUsers>>());
-builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<MyUsersAuth>>());
-builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<Posts>>());
-builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<Comments>>());
-builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<Replies>>());
-builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<Reactions>>());
-builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<Attachments>>());
-builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<Feedback>>());
-builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<Todo>>());
 
 if (ismodedb == 0)
 {
@@ -57,7 +47,16 @@ else
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-//builder.Services.AddScoped<DbContext, DBContext>();
+builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<MyUsers>>());
+builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<MyUsersAuth>>());
+builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<Posts>>());
+builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<Comments>>());
+builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<Replies>>());
+builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<Reactions>>());
+builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<Attachments>>());
+builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<Feedback>>());
+builder.Services.AddSingleton<MEL.ILogger>(provider => provider.GetRequiredService<MEL.ILogger<Todo>>());
+
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPostsService, PostsService>();
 builder.Services.AddScoped<ICommentsService, CommentsService>();
@@ -76,17 +75,39 @@ builder.Services.AddIdentityServer()
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 
-builder.Services.AddAuthentication(x =>
+if(!localjwt)
 {
-    if(localjwt)
+    builder.Services.AddAuthentication()
+    .AddIdentityServerJwt()
+    .AddGoogle(googleOptions =>
+    {
+        googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+        googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+    })
+    .AddFacebook(fbOptions =>
+    {
+        fbOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
+        fbOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
+    })
+    .AddTwitter(twOptions =>
+    {
+        twOptions.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"]!;
+        twOptions.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"]!;
+    })
+    .AddGitHub(ghOptions =>
+    {
+        ghOptions.ClientId = builder.Configuration["Authentication:Github:ClientId"]!;
+        ghOptions.ClientSecret = builder.Configuration["Authentication:Github:ClientSecret"]!;
+    });
+}
+else
+{
+    builder.Services.AddAuthentication(x =>
     {
         x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    }
-})
-.AddJwtBearer(x =>
-{
-    if(localjwt)
+    })
+    .AddJwtBearer(x =>
     {
         x.RequireHttpsMetadata = false;
         x.SaveToken = true;
@@ -98,34 +119,8 @@ builder.Services.AddAuthentication(x =>
             ValidateAudience = false,
             ClockSkew = TimeSpan.Zero
         };
-    }
-})
-.AddIdentityServerJwt()
-.AddGoogle(googleOptions =>
-{
-    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
-    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
-})
-.AddFacebook(fbOptions =>
-{
-    fbOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
-    fbOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
-})
-.AddTwitter(twOptions =>
-{
-    twOptions.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"]!;
-    twOptions.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"]!;
-})
-.AddGitHub(ghOptions =>
-{
-    ghOptions.ClientId = builder.Configuration["Authentication:Github:ClientId"]!;
-    ghOptions.ClientSecret = builder.Configuration["Authentication:Github:ClientSecret"]!;
-});
-//.AddMicrosoftAccount(micOptions =>
-//{
-//    micOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
-//    micOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
-//});
+    });
+}
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<HttpContextAccessor>();
@@ -252,7 +247,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
-//app.MapFallbackToPage("/_Host");
 app.MapControllers();
 app.MapFallbackToFile("mindex.html");
 
