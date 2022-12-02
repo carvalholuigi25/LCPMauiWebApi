@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using LCPMauiWebApi.Server.Classes;
-using LCPMauiWebApi.Server.Interfaces;
 using LCPMauiWebApi.Server.Models;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
 
 namespace LCPMauiWebApi.Server.Controllers
 {
@@ -42,6 +40,14 @@ namespace LCPMauiWebApi.Server.Controllers
                 Username = myuser?.UserName,
                 PhoneNumber = myuser?.PhoneNumber
             });
+        }
+
+        [Authorize]
+        [HttpGet("atoken")]
+        public async Task<IActionResult> GetAccessToken()
+        {
+            var result = await HttpContext.GetTokenAsync("access_token") ?? HttpContext.Request.Headers["Authorization"];
+            return Ok(result);
         }
     }
 }

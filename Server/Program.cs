@@ -20,6 +20,7 @@ using System.Text.Json.Serialization;
 using LCPMauiWebApi.Server.Models;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Blazored.SessionStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 var ismodedb = 0;
@@ -122,11 +123,6 @@ else
     });
 }
 
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<HttpContextAccessor>();
-builder.Services.AddHttpClient();
-builder.Services.AddScoped<HttpClient>();
-
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -186,6 +182,20 @@ builder.Services.AddBlazoredLocalStorage(config =>
     config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
     config.JsonSerializerOptions.WriteIndented = false;
 });
+
+builder.Services.AddBlazoredSessionStorage(config => {
+    config.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+    config.JsonSerializerOptions.IgnoreReadOnlyProperties = true;
+    config.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    config.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
+    config.JsonSerializerOptions.WriteIndented = false;
+});
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<HttpContextAccessor>();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<HttpClient>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
