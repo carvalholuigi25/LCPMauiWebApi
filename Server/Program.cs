@@ -19,9 +19,12 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using LCPMauiWebApi.Server.Models;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 var ismodedb = 0;
+var localjwt = false;
+var key = localjwt ? Encoding.UTF8.GetBytes(builder.Configuration.GetSection("token").Value!) : null;
 
 var logger = new LoggerConfiguration()
   .ReadFrom.Configuration(builder.Configuration)
@@ -71,38 +74,63 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 builder.Services.AddIdentityServer()
     .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
-builder.Services.AddAuthentication()
-    .AddIdentityServerJwt()
-    .AddGoogle(googleOptions =>
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+
+builder.Services.AddAuthentication(x =>
+{
+    if(localjwt)
     {
-        googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
-        googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
-    })
-    .AddFacebook(fbOptions =>
+        x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    }
+})
+.AddJwtBearer(x =>
+{
+    if(localjwt)
     {
-        fbOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
-        fbOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
-    })
-    .AddTwitter(twOptions =>
-    {
-        twOptions.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"]!;
-        twOptions.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"]!;
-    })
-    .AddGitHub(ghOptions =>
-    {
-        ghOptions.ClientId = builder.Configuration["Authentication:Github:ClientId"]!;
-        ghOptions.ClientSecret = builder.Configuration["Authentication:Github:ClientSecret"]!;
-    });
+        x.RequireHttpsMetadata = false;
+        x.SaveToken = true;
+        x.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero
+        };
+    }
+})
+.AddIdentityServerJwt()
+.AddGoogle(googleOptions =>
+{
+    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+})
+.AddFacebook(fbOptions =>
+{
+    fbOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
+    fbOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
+})
+.AddTwitter(twOptions =>
+{
+    twOptions.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"]!;
+    twOptions.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"]!;
+})
+.AddGitHub(ghOptions =>
+{
+    ghOptions.ClientId = builder.Configuration["Authentication:Github:ClientId"]!;
+    ghOptions.ClientSecret = builder.Configuration["Authentication:Github:ClientSecret"]!;
+});
 //.AddMicrosoftAccount(micOptions =>
 //{
 //    micOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
 //    micOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
 //});
 
-//builder.Services.AddHttpContextAccessor();
-//builder.Services.AddScoped<HttpContextAccessor>();
-//builder.Services.AddHttpClient();
-//builder.Services.AddScoped<HttpClient>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<HttpContextAccessor>();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<HttpClient>();
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -164,28 +192,6 @@ builder.Services.AddBlazoredLocalStorage(config =>
     config.JsonSerializerOptions.WriteIndented = false;
 });
 
-//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
-
-//var key = Encoding.UTF8.GetBytes(builder.Configuration.GetSection("token").Value!);
-//builder.Services.AddAuthentication(x =>
-//{
-//    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//})
-//.AddJwtBearer(x =>
-//{
-//    x.RequireHttpsMetadata = false;
-//    x.SaveToken = true;
-//    x.TokenValidationParameters = new TokenValidationParameters
-//    {
-//        ValidateIssuerSigningKey = true,
-//        IssuerSigningKey = new SymmetricSecurityKey(key),
-//        ValidateIssuer = false,
-//        ValidateAudience = false,
-//        ClockSkew = TimeSpan.Zero
-//    };
-//});
-
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddControllersWithViews(options =>
@@ -239,7 +245,7 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "LCP Maui Web Api V1");
 });
 
-//app.UseCookiePolicy();
+app.UseCookiePolicy();
 app.UseRouting();
 app.UseIdentityServer();
 app.UseAuthentication();
