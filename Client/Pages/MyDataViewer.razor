@@ -1,0 +1,101 @@
+﻿@page "/mydataviewer"
+
+@using LCPMauiWebApi.Client.Classes
+@using Newtonsoft.Json
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Blazored.LocalStorage
+@using Blazored.SessionStorage
+
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@attribute [Authorize]
+
+<PageTitle>My Data Viewer Storage</PageTitle>
+
+<h3>My Data Viewer Storage</h3>
+
+<EditForm Model="@mydv" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group d-block mt-3">
+        <label for="Key">Key Name: </label>
+        <InputText id="Key" class="Key form-control" @bind-Value="mydv.Key" />
+    </div>
+
+    <div class="form-group d-block mt-3">
+        <label for="TypeData">Type of Data Viewer:</label>
+        <InputSelect id="TypeData" class="TypeData form-control" @bind-Value="mydv.TypeData">
+            @foreach (var tdv in Enum.GetValues(typeof(EnumSessionTypes)))
+            {
+                <option value="@tdv">@tdv</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group d-block mt-3">
+        <div class="d-inline-block">
+            <input type="button" class="btn btn-secondary btnreset" id="btnreset" value="Reset" @onclick="ClearData" />
+            <input type="submit" class="btn btn-primary btnsubmit" id="btnsubmit" value="Submit" />
+        </div>
+    </div>
+</EditForm>
+
+<p class="mt-3">Data: </p>
+<code class="d-block mt-3 p-3 w-100 mw-100" style="background: black; color: lime; white-space: pre-wrap; word-break: break-all;">
+    @if(myData != null)
+    {
+        @JsonConvert.SerializeObject(JsonConvert.DeserializeObject(myData), Formatting.Indented)
+    }
+    else
+    {
+        @JsonConvert.SerializeObject(new Classes.MyDataViewer() { 
+            Key = mydv.Key, 
+            TypeData = mydv.TypeData, 
+            Msg = "Error: The data is null" 
+        }, Formatting.Indented)
+    }
+</code>
+
+@code {
+    #nullable disable
+    private Classes.MyDataViewer mydv = new();
+    public string myData { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetData();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        await GetData();
+    }
+
+    private void ClearData()
+    {
+        myData = "";
+        mydv = new Classes.MyDataViewer();
+    }
+
+    private async Task GetData()
+    {
+        try
+        {
+            if (mydv.TypeData.ToString() == EnumSessionTypes.local.ToString())
+            {
+                myData = !string.IsNullOrEmpty(await localStorage.GetItemAsync<string>(mydv.Key)) ? await localStorage.GetItemAsync<string>(mydv.Key) : null;
+            }
+            else
+            {
+                myData = !string.IsNullOrEmpty(await sessionStorage.GetItemAsync<string>(mydv.Key)) ? await sessionStorage.GetItemAsync<string>(mydv.Key) : null;
+            }
+        }
+        catch (Exception exception)
+        {
+            myData = "Error: " + exception.Message;
+        }
+    }
+}
+

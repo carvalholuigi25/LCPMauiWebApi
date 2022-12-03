@@ -2,6 +2,8 @@ using LCPMauiWebApi.Client;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Blazored.LocalStorage;
+using Blazored.SessionStorage;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -14,5 +16,7 @@ builder.Services.AddHttpClient("LCPMauiWebApi.ServerAPI", client => client.BaseA
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("LCPMauiWebApi.ServerAPI"));
 
 builder.Services.AddApiAuthorization();
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddBlazoredSessionStorage();
 
 await builder.Build().RunAsync();
