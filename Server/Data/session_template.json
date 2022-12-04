@@ -1,0 +1,21 @@
+{
+  "Id": "ed6bd917-c927-492e-a6d8-85e47c58a65x",
+  "Email": "",
+  "Username": "",
+  "PhoneNumber": "",
+  "EmailConfirmed": false,
+  "PhoneNumberConfirmed": false,
+  "AccessFailedCount": 0,
+  "ConcurrencyStamp": "",
+  "LockoutEnabled": false,
+  "LockoutEnd": null,
+  "SecurityStamp": "",
+  "TwoFactorEnabled": false,
+  "IsAuthorized": false,
+  "Tokens": {
+    "IdToken": "1d5541bf-42c8-47fa-a137-1ef99c200b0d",
+    "AccessToken": ""
+  },
+  "Claims": [],
+  "Roles": []
+}

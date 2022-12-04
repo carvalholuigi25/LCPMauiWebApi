@@ -69,14 +69,26 @@ builder.Services.AddScoped<IFeedbacksService, FeedbacksService>();
 builder.Services.AddCors();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddIdentityServer()
     .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+.AddCookie()
+.AddOpenIdConnect("oidc", options =>
+{
+    options.Authority = "https://localhost:7285";
 
-if(!localjwt)
+    options.ClientId = "mvc";
+    options.ClientSecret = "secret";
+    options.ResponseType = "code";
+
+    options.SaveTokens = true;
+});
+
+if (!localjwt)
 {
     builder.Services.AddAuthentication()
     .AddIdentityServerJwt()

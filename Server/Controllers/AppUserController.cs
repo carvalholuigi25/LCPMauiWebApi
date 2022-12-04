@@ -33,13 +33,38 @@ namespace LCPMauiWebApi.Server.Controllers
         public async Task<IActionResult> GetAppUsers(string email = "carvalholuigi25@gmail.com")
         {
             var myuser = await _userManager.FindByEmailAsync(email);
-            return Ok(new {
-                IsAuthorized = User.Identity?.IsAuthenticated,
+            var myclaims = await _userManager.GetClaimsAsync(myuser!);
+            var myroles = await _userManager.GetRolesAsync(myuser!);
+            var res = new
+            {
                 Id = myuser?.Id,
                 Email = myuser?.Email,
                 Username = myuser?.UserName,
-                PhoneNumber = myuser?.PhoneNumber
-            });
+                PhoneNumber = myuser?.PhoneNumber,
+                EmailConfirmed = myuser?.EmailConfirmed,
+                PhoneNumberConfirmed = myuser?.PhoneNumberConfirmed,
+                AccessFailedCount = myuser?.AccessFailedCount,
+                ConcurrencyStamp = myuser?.ConcurrencyStamp,
+                LockoutEnabled = myuser?.LockoutEnabled,
+                LockoutEnd = myuser?.LockoutEnd,
+                SecurityStamp = myuser?.SecurityStamp,
+                TwoFactorEnabled = myuser?.TwoFactorEnabled,
+                IsAuthorized = User.Identity?.IsAuthenticated,
+                Tokens = new
+                {
+                    IdToken = await HttpContext.GetTokenAsync("id_token") ?? Guid.NewGuid().ToString(),
+                    AccessToken = await HttpContext.GetTokenAsync("access_token")
+                },
+                Claims = myclaims,
+                Roles = myroles
+            };
+
+            if (res != null)
+            {
+                await System.IO.File.WriteAllTextAsync(Directory.GetCurrentDirectory() + @"\Data\session.json", Newtonsoft.Json.JsonConvert.SerializeObject(res, Newtonsoft.Json.Formatting.Indented));
+            }
+
+            return Ok(res);
         }
 
         [Authorize]
