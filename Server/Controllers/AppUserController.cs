@@ -53,7 +53,9 @@ namespace LCPMauiWebApi.Server.Controllers
                 Tokens = new
                 {
                     IdToken = await HttpContext.GetTokenAsync("id_token") ?? Guid.NewGuid().ToString(),
-                    AccessToken = await HttpContext.GetTokenAsync("access_token")
+                    AccessToken = await HttpContext.GetTokenAsync("access_token"),
+                    RefreshToken = await HttpContext.GetTokenAsync("refresh_token"),
+                    ExpiresAtToken = await HttpContext.GetTokenAsync("expires_at")
                 },
                 Claims = myclaims,
                 Roles = myroles

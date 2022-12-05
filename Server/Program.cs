@@ -75,18 +75,7 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 builder.Services.AddIdentityServer()
     .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-.AddCookie()
-.AddOpenIdConnect("oidc", options =>
-{
-    options.Authority = "https://localhost:7285";
-
-    options.ClientId = "mvc";
-    options.ClientSecret = "secret";
-    options.ResponseType = "code";
-
-    options.SaveTokens = true;
-});
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 
 if (!localjwt)
 {
